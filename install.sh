@@ -176,19 +176,21 @@ StartupNotify=true
 Categories=Utility;
 EOF
 
-    chmod +x run_sdhelp.sh uninstall.sh
-    chmod +x /home/deck/Desktop/SDHelp.desktop
-    chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
-
     echo "100"
     echo "# Установка завершена!"
 
 ) | show_progress "Установка SD Help"
 
-# После завершения прогресс-бара показываем финальное сообщение
+# После завершения прогресс-бара даем права и показываем финальное сообщение
 if [ $? -eq 0 ]; then
-    # Проверяем что файлы созданы
-    if [ -f "/home/deck/sdhelp/uninstall.sh" ] && \
+    # Даем права на выполнение ВНЕ прогресс-бара
+    cd /home/deck/sdhelp
+    chmod +x run_sdhelp.sh uninstall.sh
+    chmod +x /home/deck/Desktop/SDHelp.desktop
+    chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
+
+    # Проверяем что файлы созданы и имеют права
+    if [ -f "uninstall.sh" ] && [ -x "uninstall.sh" ] && \
        [ -f "/home/deck/Desktop/SDHelp.desktop" ] && \
        [ -f "/home/deck/Desktop/SDHelpUninstall.desktop" ]; then
 
@@ -201,13 +203,16 @@ if [ $? -eq 0 ]; then
             --cancel-label="Закрыть"; then
 
             echo "Запуск программы..."
-            cd /home/deck/sdhelp
             ./run_sdhelp.sh
         else
             show_info "Установка завершена!\n\nДля запуска программы:\n• Ярлык 'SDHelp' на рабочем столе\n• Или файл: /home/deck/sdhelp/run_sdhelp.sh\n\nДля удаления:\n• Ярлык 'SDHelp Uninstall' на рабочем столе\n• Или файл: /home/deck/sdhelp/uninstall.sh"
         fi
     else
-        show_error "Ошибка: не все файлы были созданы. Проверьте права доступа."
+        show_error "Ошибка: не все файлы были созданы или нет прав доступа."
+        # Показываем какие файлы есть
+        echo "Проверка файлов:"
+        ls -la /home/deck/sdhelp/
+        ls -la /home/deck/Desktop/SDHelp*.desktop
         exit 1
     fi
 else
