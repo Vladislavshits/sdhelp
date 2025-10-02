@@ -60,90 +60,96 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Удаление старой версии если существует
-if [ -d "sdhelp" ]; then
-    (
-        echo "10"
-        echo "# Удаление старой версии..."
-        rm -rf sdhelp
-        echo "20"
-    ) | show_progress "Удаление старой версии..."
-fi
-
-# Скачивание архива проекта
+# Основной процесс установки в одном прогресс-баре
 (
+    echo "10"
+    echo "# Удаление старой версии..."
+    if [ -d "sdhelp" ]; then
+        rm -rf sdhelp
+    fi
+
     echo "30"
     echo "# Скачивание проекта..."
 
     # Скачивание архива с main ветки
-    if curl -L -o sdhelp-main.zip https://github.com/Vladislavshits/sdhelp/archive/refs/heads/main.zip; then
-        echo "60"
-        echo "# Проверка архива..."
-
-        # Проверка что архив скачался
-        if [ ! -f "sdhelp-main.zip" ]; then
-            show_error "Ошибка: не удалось скачать архив"
-            exit 1
-        fi
-
-        echo "70"
-        echo "# Распаковка архива..."
-
-        # Распаковка архива
-        if unzip -q sdhelp-main.zip; then
-            echo "80"
-            echo "# Установка файлов..."
-
-            # Переименование папки и перемещение файлов
-            mv sdhelp-main sdhelp
-
-            echo "90"
-            echo "# Очистка..."
-
-            # Удаление архива
-            rm -f sdhelp-main.zip
-
-            echo "100"
-            echo "# Установка завершена!"
-        else
-            show_error "Ошибка при распаковке архива"
-            exit 1
-        fi
-    else
-        show_error "Ошибка при скачивании архива"
-        exit 1
-    fi
-) | show_progress "Установка SD Help..."
-
-# Переход в директорию проекта
-cd sdhelp
-
-# Создание виртуального окружения
-(
-    echo "25"
-    echo "# Создание виртуального окружения..."
-    python3 -m venv venv
+    curl -L -o sdhelp-main.zip https://github.com/Vladislavshits/sdhelp/archive/refs/heads/main.zip
 
     echo "50"
-    echo "# Активация окружения..."
+    echo "# Распаковка архива..."
+    unzip -q sdhelp-main.zip
+    mv sdhelp-main sdhelp
+    rm -f sdhelp-main.zip
+
+    echo "70"
+    echo "# Настройка окружения..."
+    cd sdhelp
+    python3 -m venv venv
     source venv/bin/activate
+    pip install --upgrade pip --quiet
+    pip install pyqt6 --quiet
 
-    echo "75"
-    echo "# Установка зависимостей..."
-    pip install --upgrade pip
-    pip install pyqt6
+    echo "90"
+    echo "# Создание ярлыков..."
 
-    echo "100"
-    echo "# Завершение установки..."
-) | show_progress "Настройка окружения..."
+    # Создание утилиты удаления
+    cat > uninstall.sh << 'EOFUNINSTALL'
+#!/bin/bash
+set -e
 
-# Сделать скрипты исполняемыми
-chmod +x run_sdhelp.sh
-chmod +x uninstall.sh
+show_dialog() {
+    zenity --question \
+        --title="Удаление SD Help" \
+        --text="Вы уверены, что хотите удалить SD Help?\n\nВсе данные и настройки будут удалены." \
+        --width=400 \
+        --ok-label="Удалить" \
+        --cancel-label="Отмена"
+}
 
-# Создание ярлыка на рабочем столе
+show_progress() {
+    zenity --progress \
+        --title="Удаление SD Help" \
+        --text="$1" \
+        --percentage=0 \
+        --auto-close \
+        --auto-kill
+}
+
+show_info() {
+    zenity --info \
+        --title="Удаление SD Help" \
+        --text="$1" \
+        --width=400
+}
+
+if ! command -v zenity &> /dev/null; then
+    echo "Ошибка: zenity не установлен."
+    exit 1
+fi
+
+if ! show_dialog; then
+    echo "Удаление отменено."
+    exit 0
+fi
+
 (
-    echo "# Создание ярлыка..."
+    echo "25"
+    echo "# Удаление файлов программы..."
+    rm -rf /home/deck/sdhelp
+    echo "50"
+    echo "# Удаление ярлыков..."
+    rm -f /home/deck/Desktop/SDHelp.desktop
+    rm -f /home/deck/Desktop/SDHelpUninstall.desktop
+    echo "75"
+    echo "# Удаление конфигурации..."
+    rm -f /home/deck/.config/sdhelp_config.json
+    echo "100"
+    echo "# Удаление завершено!"
+) | show_progress "Удаление SD Help..."
+
+show_info "SD Help успешно удален!"
+EOFUNINSTALL
+
+    # Создание ярлыков на рабочем столе
     cat > /home/deck/Desktop/SDHelp.desktop << EOF
 [Desktop Entry]
 Version=1.0
@@ -157,12 +163,6 @@ StartupNotify=true
 Categories=Utility;
 EOF
 
-    chmod +x /home/deck/Desktop/SDHelp.desktop
-) | show_progress "Создание ярлыка..."
-
-# Создание ярлыка для удаления на рабочем столе
-(
-    echo "# Создание ярлыка удаления..."
     cat > /home/deck/Desktop/SDHelpUninstall.desktop << EOF
 [Desktop Entry]
 Version=1.0
@@ -176,19 +176,41 @@ StartupNotify=true
 Categories=Utility;
 EOF
 
+    chmod +x run_sdhelp.sh uninstall.sh
+    chmod +x /home/deck/Desktop/SDHelp.desktop
     chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
-) | show_progress "Создание ярлыка удаления..."
 
-# Запрос на запуск программы
-if zenity --question \
-    --title="Установка завершена" \
-    --text="Установка SD Help успешно завершена!\n\nЗапустить программу сейчас?" \
-    --width=400 \
-    --ok-label="Запустить" \
-    --cancel-label="Закрыть"; then
+    echo "100"
+    echo "# Установка завершена!"
 
-    echo "Запуск программы..."
-    ./run_sdhelp.sh
+) | show_progress "Установка SD Help"
+
+# После завершения прогресс-бара показываем финальное сообщение
+if [ $? -eq 0 ]; then
+    # Проверяем что файлы созданы
+    if [ -f "/home/deck/sdhelp/uninstall.sh" ] && \
+       [ -f "/home/deck/Desktop/SDHelp.desktop" ] && \
+       [ -f "/home/deck/Desktop/SDHelpUninstall.desktop" ]; then
+
+        # Запрос на запуск программы
+        if zenity --question \
+            --title="Установка завершена" \
+            --text="Установка SD Help успешно завершена!\n\n• Ярлык 'SDHelp' создан на рабочем столе\n• Ярлык 'SDHelp Uninstall' для удаления\n• Утилита удаления: /home/deck/sdhelp/uninstall.sh\n\nЗапустить программу сейчас?" \
+            --width=500 \
+            --ok-label="Запустить" \
+            --cancel-label="Закрыть"; then
+
+            echo "Запуск программы..."
+            cd /home/deck/sdhelp
+            ./run_sdhelp.sh
+        else
+            show_info "Установка завершена!\n\nДля запуска программы:\n• Ярлык 'SDHelp' на рабочем столе\n• Или файл: /home/deck/sdhelp/run_sdhelp.sh\n\nДля удаления:\n• Ярлык 'SDHelp Uninstall' на рабочем столе\n• Или файл: /home/deck/sdhelp/uninstall.sh"
+        fi
+    else
+        show_error "Ошибка: не все файлы были созданы. Проверьте права доступа."
+        exit 1
+    fi
 else
-    show_info "Установка завершена!\n\nДля запуска программы:\n• Ярлык 'SDHelp' на рабочем столе\n• Или файл: /home/deck/sdhelp/run_sdhelp.sh\n\nДля удаления:\n• Ярлык 'SDHelp Uninstall' на рабочем столе\n• Или файл: /home/deck/sdhelp/uninstall.sh"
+    show_error "Установка была прервана или завершилась с ошибкой."
+    exit 1
 fi
