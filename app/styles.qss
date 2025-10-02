@@ -2,47 +2,127 @@
 
 QMainWindow {
     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                               stop: 0 #1e3c72, stop: 1 #2a5298);
+                                stop: 0 #1e1e2e, stop: 1 #2d2b42);
+}
+
+QWidget {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                                stop: 0 #1e1e2e, stop: 1 #2d2b42);
 }
 
 QPushButton {
-    background-color: #0078d4;
+    background-color: #5d4e7b;
     color: white;
     border: none;
-    border-radius: 15px;
-    padding: 20px;
-    font-size: 18px;
+    border-radius: 8px; /* Уменьшили с 15px */
+    padding: 10px; /* Уменьшили с 20px */
+    font-size: 14px; /* Уменьшили с 18px */
     font-weight: bold;
-    min-height: 80px;
+    min-height: 40px; /* Уменьшили с 80px */
 }
 
 QPushButton:hover {
-    background-color: #106ebe;
+    background-color: #6d5d8a;
     border: 2px solid #ffffff;
 }
 
 QPushButton:pressed {
-    background-color: #005a9e;
+    background-color: #4a3e62;
 }
 
 QPushButton:focus {
     outline: none;
-    border: 3px solid #ffffff;
+    border: 2px solid #ffffff; /* Уменьшили с 3px */
 }
 
-/* Специфичные стили для кнопок */
-QPushButton#autoSetupBtn {
-    background-color: #107c10;
+/* Стили для вкладок */
+QTabWidget::pane {
+    border: 2px solid #5d4e7b;
+    border-radius: 8px; /* Уменьшили с 10px */
+    background-color: rgba(93, 78, 123, 0.3);
 }
 
-QPushButton#autoSetupBtn:hover {
-    background-color: #0d6b0d;
+QTabWidget::tab-bar {
+    alignment: center;
 }
 
-QPushButton#customSetupBtn {
-    background-color: #d83b01;
+QTabBar::tab {
+    background-color: #5d4e7b;
+    color: white;
+    padding: 8px 16px; /* Уменьшили с 12px 20px */
+    margin: 4px; /* Уменьшили с 5px */
+    border: none;
+    border-radius: 6px; /* Уменьшили с 8px */
+    font-size: 12px; /* Уменьшили с 14px */
+    font-weight: bold;
 }
 
-QPushButton#customSetupBtn:hover {
-    background-color: #b32d00;
+QTabBar::tab:selected {
+    background-color: #8a7bac;
+    color: white;
+}
+
+QTabBar::tab:hover {
+    background-color: #6d5d8a;
+}
+
+/* Стили для чекбоксов */
+QCheckBox {
+    color: white;
+    font-size: 12px; /* Уменьшили с 14px */
+    margin: 6px; /* Уменьшили с 8px */
+    padding: 4px; /* Уменьшили с 5px */
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px; /* Уменьшили с 5px */
+}
+
+QCheckBox::indicator {
+    width: 16px; /* Уменьшили с 20px */
+    height: 16px; /* Уменьшили с 20px */
+}
+
+QCheckBox::indicator:unchecked {
+    background-color: #5d4e7b;
+    border: 1px solid #7d6e9b; /* Уменьшили с 2px */
+    border-radius: 3px; /* Уменьшили с 4px */
+}
+
+QCheckBox::indicator:checked {
+    background-color: #8a7bac;
+    border: 1px solid #9d8ebf; /* Уменьшили с 2px */
+    border-radius: 3px; /* Уменьшили с 4px */
+}
+
+QCheckBox:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Стили для области прокрутки */
+QScrollArea {
+    border: none;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px; /* Уменьшили с 10px */
+}
+
+QScrollBar:vertical {
+    border: none;
+    background-color: #5d4e7b;
+    width: 10px; /* Уменьшили с 12px */
+    margin: 0px;
+    border-radius: 5px; /* Уменьшили с 6px */
+}
+
+QScrollBar::handle:vertical {
+    background-color: #8a7bac;
+    border-radius: 5px; /* Уменьшили с 6px */
+    min-height: 16px; /* Уменьшили с 20px */
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #9d8ebf;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
 }
