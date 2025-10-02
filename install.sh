@@ -160,16 +160,35 @@ EOF
     chmod +x /home/deck/Desktop/SDHelp.desktop
 ) | show_progress "Создание ярлыка..."
 
-show_info "Установка завершена!\n\nЯрлык 'SDHelp' создан на рабочем столе.\n\nДля удаления программы запустите: ./uninstall.sh\nИли ярлык 'SDHelp Uninstall' на рабочем столе."
+# Создание ярлыка для удаления на рабочем столе
+(
+    echo "# Создание ярлыка удаления..."
+    cat > /home/deck/Desktop/SDHelpUninstall.desktop << EOF
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SDHelp Uninstall
+Comment=Uninstall SD Help Utility
+Exec=/home/deck/sdhelp/uninstall.sh
+Icon=user-trash
+Terminal=false
+StartupNotify=true
+Categories=Utility;
+EOF
 
-# Автозапуск программы
+    chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
+) | show_progress "Создание ярлыка удаления..."
+
+# Запрос на запуск программы
 if zenity --question \
-    --title="Запуск SD Help" \
-    --text="Запустить программу сейчас?" \
+    --title="Установка завершена" \
+    --text="Установка SD Help успешно завершена!\n\nЗапустить программу сейчас?" \
     --width=400 \
     --ok-label="Запустить" \
-    --cancel-label="Выйти"; then
+    --cancel-label="Закрыть"; then
 
     echo "Запуск программы..."
     ./run_sdhelp.sh
+else
+    show_info "Установка завершена!\n\nДля запуска программы:\n• Ярлык 'SDHelp' на рабочем столе\n• Или файл: /home/deck/sdhelp/run_sdhelp.sh\n\nДля удаления:\n• Ярлык 'SDHelp Uninstall' на рабочем столе\n• Или файл: /home/deck/sdhelp/uninstall.sh"
 fi
