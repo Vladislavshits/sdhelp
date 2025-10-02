@@ -1,5 +1,7 @@
 import sys
 import os
+import logging
+from datetime import datetime
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton,
                            QVBoxLayout, QHBoxLayout, QWidget, QMessageBox, QLabel, QTabWidget)
 from PyQt6.QtCore import Qt, QFile, QTextStream
@@ -8,6 +10,26 @@ from PyQt6.QtGui import QFont
 # Добавляем путь к текущей директории в sys.path
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, current_dir)
+
+# Настройка логирования
+def setup_logging():
+    log_dir = os.path.join(os.path.dirname(current_dir), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+
+    log_file = os.path.join(log_dir, f'sdhelp_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+
+    return logging.getLogger(__name__)
+
+logger = setup_logging()
 
 # Импорты для экранов
 from screens.games_screen import GamesScreen
@@ -20,6 +42,7 @@ from config import config
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        logger.info("Инициализация главного окна")
         self.initUI()
         self.loadStyles()
 
@@ -31,6 +54,8 @@ class MainWindow(QMainWindow):
         # Установка окна на весь экран
         self.showFullScreen()
         self.setWindowTitle('SD Help - Настройка Steam Deck')
+
+        logger.info("Главное окно настроено на полноэкранный режим")
 
         # Создание основного layout
         main_layout = QVBoxLayout()
@@ -104,8 +129,9 @@ class MainWindow(QMainWindow):
                 stream = QTextStream(style_file)
                 self.setStyleSheet(stream.readAll())
                 style_file.close()
+                logger.info("Стили успешно загружены")
         except Exception as e:
-            print(f"Ошибка загрузки стилей: {e}")
+            logger.error(f"Ошибка загрузки стилей: {e}")
             self.applyDefaultStyles()
 
     def applyDefaultStyles(self):
@@ -135,17 +161,20 @@ class MainWindow(QMainWindow):
 
     def autoSetup(self):
         """Обработчик кнопки автоматической настройки"""
+        logger.info("Нажата кнопка 'Настроить за один клик'")
         QMessageBox.information(self, "Автонастройка",
                                "Функция автоматической настройки будет реализована в будущем")
 
     def customSetup(self):
         """Обработчик кнопки выбора исправлений"""
+        logger.info("Нажата кнопка 'Выбрать исправления самостоятельно'")
         self.custom_screen = CustomFixScreen()
         self.custom_screen.back_button.clicked.connect(self.showMainScreen)
         self.setCentralWidget(self.custom_screen)
 
     def showMainScreen(self):
         """Возврат на главный экран"""
+        logger.info("Возврат на главный экран")
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         self.initUI()
@@ -153,6 +182,7 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         """Обработка нажатий клавиш"""
         if event.key() == Qt.Key.Key_Escape:
+            logger.info("Нажата клавиша Escape - выход из программы")
             self.close()
         else:
             super().keyPressEvent(event)
@@ -161,6 +191,7 @@ class MainWindow(QMainWindow):
 class CustomFixScreen(QWidget):
     def __init__(self):
         super().__init__()
+        logger.info("Инициализация экрана выбора исправлений")
         self.initUI()
         self.loadStyles()
 
@@ -226,10 +257,11 @@ class CustomFixScreen(QWidget):
                 self.setStyleSheet(stream.readAll())
                 style_file.close()
         except Exception as e:
-            print(f"Ошибка загрузки стилей: {e}")
+            logger.error(f"Ошибка загрузки стилей: {e}")
 
 
 def main():
+    logger.info("Запуск приложения SD Help")
     app = QApplication(sys.argv)
 
     # Установка стиля приложения
@@ -238,7 +270,13 @@ def main():
     window = MainWindow()
     window.show()
 
-    sys.exit(app.exec())
+    logger.info("Приложение успешно запущено")
+
+    try:
+        sys.exit(app.exec())
+    except Exception as e:
+        logger.error(f"Ошибка в главном цикле приложения: {e}")
+        raise
 
 
 if __name__ == '__main__':
