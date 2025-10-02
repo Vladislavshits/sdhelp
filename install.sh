@@ -181,41 +181,32 @@ EOF
 
 ) | show_progress "Установка SD Help"
 
-# После завершения прогресс-бара даем права и показываем финальное сообщение
-if [ $? -eq 0 ]; then
-    # Даем права на выполнение ВНЕ прогресс-бара
-    cd /home/deck/sdhelp
-    chmod +x run_sdhelp.sh uninstall.sh
-    chmod +x /home/deck/Desktop/SDHelp.desktop
-    chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
-
-    # Проверяем что файлы созданы и имеют права
-    if [ -f "uninstall.sh" ] && [ -x "uninstall.sh" ] && \
-       [ -f "/home/deck/Desktop/SDHelp.desktop" ] && \
-       [ -f "/home/deck/Desktop/SDHelpUninstall.desktop" ]; then
-
-        # Запрос на запуск программы
-        if zenity --question \
-            --title="Установка завершена" \
-            --text="Установка SD Help успешно завершена!\n\n• Ярлык 'SDHelp' создан на рабочем столе\n• Ярлык 'SDHelp Uninstall' для удаления\n• Утилита удаления: /home/deck/sdhelp/uninstall.sh\n\nЗапустить программу сейчас?" \
-            --width=500 \
-            --ok-label="Запустить" \
-            --cancel-label="Закрыть"; then
-
-            echo "Запуск программы..."
-            ./run_sdhelp.sh
-        else
-            show_info "Установка завершена!\n\nДля запуска программы:\n• Ярлык 'SDHelp' на рабочем столе\n• Или файл: /home/deck/sdhelp/run_sdhelp.sh\n\nДля удаления:\n• Ярлык 'SDHelp Uninstall' на рабочем столе\n• Или файл: /home/deck/sdhelp/uninstall.sh"
-        fi
-    else
-        show_error "Ошибка: не все файлы были созданы или нет прав доступа."
-        # Показываем какие файлы есть
-        echo "Проверка файлов:"
-        ls -la /home/deck/sdhelp/
-        ls -la /home/deck/Desktop/SDHelp*.desktop
-        exit 1
-    fi
-else
+# Проверяем успешность установки
+if [ $? -ne 0 ]; then
     show_error "Установка была прервана или завершилась с ошибкой."
     exit 1
 fi
+
+# Даем права на выполнение
+cd /home/deck/sdhelp
+chmod +x run_sdhelp.sh uninstall.sh
+chmod +x /home/deck/Desktop/SDHelp.desktop
+chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
+
+# Проверяем что файлы созданы
+if [ ! -f "uninstall.sh" ] || [ ! -f "/home/deck/Desktop/SDHelp.desktop" ] || [ ! -f "/home/deck/Desktop/SDHelpUninstall.desktop" ]; then
+    show_error "Ошибка: не все файлы были созданы."
+    exit 1
+fi
+
+# --- ИСПРАВЛЕННЫЙ ФИНАЛЬНЫЙ БЛОК (Автономный и надежный) ---
+
+# 1. ФИНАЛЬНОЕ СООБЩЕНИЕ (Блокирующий Zenity --info гарантирует показ)
+# Этот диалог ждет нажатия OK
+show_info "Установка SD Help успешно завершена!\n\n• Ярлык 'SDHelp' создан на рабочем столе\n• Ярлык 'SDHelp Uninstall' для удаления\n• Утилита удаления: /home/deck/sdhelp/uninstall.sh\n\nНажмите OK для запуска программы сейчас."
+
+# 2. Запуск программы в фоновом режиме (делает установщик автономным)
+echo "Запуск программы..."
+/home/deck/sdhelp/run_sdhelp.sh &
+
+# 3. Установщик завершается сразу после запуска фонового процесса.
