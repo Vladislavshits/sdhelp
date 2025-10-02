@@ -1,0 +1,48 @@
+/* Основные стили для SD Help */
+
+QMainWindow {
+    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
+                               stop: 0 #1e3c72, stop: 1 #2a5298);
+}
+
+QPushButton {
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 15px;
+    padding: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    min-height: 80px;
+}
+
+QPushButton:hover {
+    background-color: #106ebe;
+    border: 2px solid #ffffff;
+}
+
+QPushButton:pressed {
+    background-color: #005a9e;
+}
+
+QPushButton:focus {
+    outline: none;
+    border: 3px solid #ffffff;
+}
+
+/* Специфичные стили для кнопок */
+QPushButton#autoSetupBtn {
+    background-color: #107c10;
+}
+
+QPushButton#autoSetupBtn:hover {
+    background-color: #0d6b0d;
+}
+
+QPushButton#customSetupBtn {
+    background-color: #d83b01;
+}
+
+QPushButton#customSetupBtn:hover {
+    background-color: #b32d00;
+}
