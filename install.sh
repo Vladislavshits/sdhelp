@@ -39,12 +39,6 @@ show_error() {
         --width=400
 }
 
-# Проверка наличия zenity
-if ! command -v zenity &> /dev/null; then
-    echo "Ошибка: zenity не установлен. Установите zenity для работы установщика."
-    exit 1
-fi
-
 # Показать начальный диалог
 if ! show_dialog; then
     echo "Установка отменена пользователем."
@@ -52,7 +46,7 @@ if ! show_dialog; then
 fi
 
 # Переход в домашнюю директорию
-cd /home/deck
+cd "$HOME"
 
 # Проверка наличия Python
 if ! command -v python3 &> /dev/null; then
@@ -134,14 +128,14 @@ fi
 (
     echo "25"
     echo "# Удаление файлов программы..."
-    rm -rf /home/deck/sdhelp
+    rm -rf "$HOME"/sdhelp
     echo "50"
     echo "# Удаление ярлыков..."
-    rm -f /home/deck/Desktop/SDHelp.desktop
-    rm -f /home/deck/Desktop/SDHelpUninstall.desktop
+    rm -f "$HOME"/Desktop/SDHelp.desktop
+    rm -f "$HOME"/Desktop/SDHelpUninstall.desktop
     echo "75"
     echo "# Удаление конфигурации..."
-    rm -f /home/deck/.config/sdhelp_config.json
+    rm -f "$HOME"/.config/sdhelp_config.json
     echo "100"
     echo "# Удаление завершено!"
 ) | show_progress "Удаление SD Help..."
@@ -150,26 +144,26 @@ show_info "SD Help успешно удален!"
 EOFUNINSTALL
 
     # Создание ярлыков на рабочем столе
-    cat > /home/deck/Desktop/SDHelp.desktop << EOF
+    cat > "$HOME"/Desktop/SDHelp.desktop << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
 Name=SDHelp
 Comment=Steam Deck Help Utility
-Exec=/home/deck/sdhelp/run_sdhelp.sh
-Icon=/home/deck/sdhelp/icon.png
+Exec="$HOME"/sdhelp/run_sdhelp.sh
+Icon="$HOME"/sdhelp/icon.png
 Terminal=false
 StartupNotify=true
 Categories=Utility;
 EOF
 
-    cat > /home/deck/Desktop/SDHelpUninstall.desktop << EOF
+    cat > "$HOME"/Desktop/SDHelpUninstall.desktop << EOF
 [Desktop Entry]
 Version=1.0
 Type=Application
 Name=SDHelp Uninstall
 Comment=Uninstall SD Help Utility
-Exec=/home/deck/sdhelp/uninstall.sh
+Exec="$HOME"/sdhelp/uninstall.sh
 Icon=user-trash
 Terminal=false
 StartupNotify=true
@@ -188,13 +182,13 @@ if [ $? -ne 0 ]; then
 fi
 
 # Даем права на выполнение
-cd /home/deck/sdhelp
+cd "$HOME"/sdhelp
 chmod +x run_sdhelp.sh uninstall.sh
-chmod +x /home/deck/Desktop/SDHelp.desktop
-chmod +x /home/deck/Desktop/SDHelpUninstall.desktop
+chmod +x "$HOME"/Desktop/SDHelp.desktop
+chmod +x "$HOME"/Desktop/SDHelpUninstall.desktop
 
 # Проверяем что файлы созданы
-if [ ! -f "uninstall.sh" ] || [ ! -f "/home/deck/Desktop/SDHelp.desktop" ] || [ ! -f "/home/deck/Desktop/SDHelpUninstall.desktop" ]; then
+if [ ! -f "uninstall.sh" ] || [ ! -f "$HOME/Desktop/SDHelp.desktop" ] || [ ! -f "$HOME/Desktop/SDHelpUninstall.desktop" ]; then
     show_error "Ошибка: не все файлы были созданы."
     exit 1
 fi
@@ -207,6 +201,6 @@ show_info "Установка SD Help успешно завершена!\n\n• 
 
 # 2. Запуск программы в фоновом режиме (делает установщик автономным)
 echo "Запуск программы..."
-/home/deck/sdhelp/run_sdhelp.sh &
+"$HOME"/sdhelp/run_sdhelp.sh &
 
 # 3. Установщик завершается сразу после запуска фонового процесса.
