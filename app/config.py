@@ -1,117 +1,59 @@
 import json
 import os
-from typing import Dict, Any
-
+from typing import Any, Dict
 
 class Config:
     def __init__(self):
-        self.config_path = os.path.join(os.path.dirname(__file__), 'config.json')
-        self.default_config = {
-            "version": "0.1",
-            "paths": {
-                "home": "/home/deck",
-                "sdhelp_dir": "/home/deck/sdhelp",
-                "scripts_dir": "/home/deck/sdhelp/scripts"
-            },
-            "programs": {
-                "zapret": {
-                    "installed": False,
-                    "version": "",
-                    "path": ""
-                },
-                "decky_loader": {
-                    "installed": False,
-                    "version": "",
-                    "path": ""
-                }
-            },
-            "games": {
-                "the_crew": {
-                    "fixed": False,
-                    "last_fix_date": ""
-                },
-                "forza_horizon": {
-                    "fixed": False,
-                    "last_fix_date": ""
-                },
-                "hogwarts_legacy": {
-                    "fixed": False,
-                    "last_fix_date": ""
-                }
-            },
-            "steamos": {
-                "optimized": False,
-                "backup_created": False
-            },
-            "network": {
-                "wifi_optimized": False,
-                "dns_configured": False
-            }
-        }
-        self.config = self.load_config()
-
+        self.config_path = os.path.join(os.path.dirname(__file__), "config.json")
+        self.data = self.load_config()
+    
     def load_config(self) -> Dict[str, Any]:
-        """Загрузка конфигурации из файла"""
+        """Загрузка конфигурации"""
+        default_config = {
+            "version": "1.0.0",
+            "functions": {},
+            "games": {},
+            "programs": {}
+        }
+        
         try:
             if os.path.exists(self.config_path):
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
-            else:
-                return self.default_config.copy()
-        except Exception as e:
-            print(f"Ошибка загрузки конфига: {e}")
-            return self.default_config.copy()
-
+        except Exception:
+            pass
+            
+        return default_config
+    
     def save_config(self):
-        """Сохранение конфигурации в файл"""
+        """Сохранение конфигурации"""
         try:
             with open(self.config_path, 'w', encoding='utf-8') as f:
-                json.dump(self.config, f, indent=4, ensure_ascii=False)
+                json.dump(self.data, f, indent=2, ensure_ascii=False)
         except Exception as e:
             print(f"Ошибка сохранения конфига: {e}")
-
-    def get(self, key: str, default=None):
-        """Получение значения по ключу"""
-        keys = key.split('.')
-        value = self.config
-        for k in keys:
-            if isinstance(value, dict) and k in value:
-                value = value[k]
-            else:
-                return default
-        return value
-
-    def set(self, key: str, value: Any):
-        """Установка значения по ключу"""
-        keys = key.split('.')
-        config_ref = self.config
-
-        for k in keys[:-1]:
-            if k not in config_ref:
-                config_ref[k] = {}
-            config_ref = config_ref[k]
-
-        config_ref[keys[-1]] = value
+    
+    def set_function_applied(self, function_key: str, applied: bool):
+        """Установить статус применения функции"""
+        self.data.setdefault("functions", {})[function_key] = applied
         self.save_config()
+    
+    def is_function_applied(self, function_key: str) -> bool:
+        """Проверить применена ли функция"""
+        return self.data.get("functions", {}).get(function_key, False)
+    
+    # Совместимость со старым кодом
+    def is_game_fixed(self, game_key: str) -> bool:
+        return self.is_function_applied(f"game_{game_key}")
+    
+    def set_game_fixed(self, game_key: str, fixed: bool):
+        self.set_function_applied(f"game_{game_key}", fixed)
+    
+    def is_program_installed(self, program_key: str) -> bool:
+        return self.is_function_applied(f"program_{program_key}")
+    
+    def set_program_installed(self, program_key: str, installed: bool, version: str = ""):
+        self.set_function_applied(f"program_{program_key}", installed)
 
-    def is_program_installed(self, program_name: str) -> bool:
-        """Проверка установлена ли программа"""
-        return self.get(f"programs.{program_name}.installed", False)
-
-    def set_program_installed(self, program_name: str, installed: bool, version: str = ""):
-        """Установка статуса программы"""
-        self.set(f"programs.{program_name}.installed", installed)
-        if version:
-            self.set(f"programs.{program_name}.version", version)
-
-    def is_game_fixed(self, game_name: str) -> bool:
-        """Проверка применено ли исправление для игры"""
-        return self.get(f"games.{game_name}.fixed", False)
-
-    def set_game_fixed(self, game_name: str, fixed: bool):
-        """Установка статуса исправления игры"""
-        self.set(f"games.{game_name}.fixed", fixed)
-
-
-# Глобальный экземпляр конфигурации
+# Глобальный инстанс конфига
 config = Config()
