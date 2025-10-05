@@ -12,21 +12,15 @@ show_dialog() {
         --ok-label="Установить" \
         --cancel-label="Отмена"
 }
-# Функция для форматирования вывода для отображения в поле прогресса zenity
-format_output() {
-    while IFS= read -r line; do
-        echo "# $line"
-    done
-}
 
 # Функция для показа прогресса
 show_progress() {
-    (format_output) | zenity --progress \
-    --width=500 \
-    --pulsate \
-    --auto-close \
-    --text="$1" \
-    --title="Установка SD Help"
+    zenity --progress \
+        --title="Установка SD Help" \
+        --text="$1" \
+        --percentage=0 \
+        --auto-close \
+        --auto-kill
 }
 
 # Функция для показа информации
