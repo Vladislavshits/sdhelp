@@ -1,23 +1,9 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from core.base_screen import BaseScreen
 
-
-class NetworkScreen(QWidget):
+class NetworkScreen(BaseScreen):
     def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        title = QLabel("Настройки сети")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_font = QFont()
-        title_font.setPointSize(20)
-        title_font.setBold(True)
-        title.setFont(title_font)
-        title.setStyleSheet("color: white;")
-
-        layout.addWidget(title)
-        self.setLayout(layout)
+        super().__init__(
+            title="Настройки сети",
+            description="Оптимизация сетевых подключений",
+            category="network"
+        )
