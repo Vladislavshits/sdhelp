@@ -46,28 +46,44 @@ class MainWindow(QMainWindow):
         self.initUI()
         self.loadStyles()
 
+        # Центрируем окно
+        self.centerWindow()
+
+    def centerWindow(self):
+        """Центрирование окна на экране"""
+        screen = QApplication.primaryScreen().geometry()
+        width = int(screen.width() * 0.5)  # 50% ширины экрана
+        height = int(screen.height() * 0.4)  # 40% высоты экрана
+        x = (screen.width() - width) // 2
+        y = (screen.height() - height) // 2
+        self.setGeometry(x, y, width, height)
+
     def initUI(self):
         # Создание центрального виджета
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        # Установка окна на весь экран
-        self.showFullScreen()
         self.setWindowTitle('SD Help - Настройка Steam Deck')
-
-        logger.info("Главное окно настроено на полноэкранный режим")
+        logger.info("Главное окно настроено")
 
         # Создание основного layout
         main_layout = QVBoxLayout()
-        main_layout.setContentsMargins(50, 100, 50, 50)
+        main_layout.setContentsMargins(30, 30, 30, 30)
+        main_layout.setSpacing(20)
 
-        # Добавление растягивающегося пространства сверху
-        main_layout.addStretch(1)
+        # Заголовок
+        title_label = QLabel('SD Help - Настройка Steam Deck')
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_font = QFont()
+        title_font.setPointSize(18)
+        title_font.setBold(True)
+        title_label.setFont(title_font)
+        title_label.setStyleSheet("color: white;")
+        main_layout.addWidget(title_label)
 
         # Создание layout для кнопок
         buttons_layout = QVBoxLayout()
-        buttons_layout.setSpacing(30)
-        buttons_layout.setContentsMargins(100, 0, 100, 0)
+        buttons_layout.setSpacing(15)
 
         # Создание кнопок
         self.autoSetupBtn = QPushButton('Настроить за один клик')
@@ -75,15 +91,14 @@ class MainWindow(QMainWindow):
 
         # Настройка шрифтов для кнопок
         font = QFont()
-        font.setPointSize(16)
-        font.setBold(True)
+        font.setPointSize(12)
 
         self.autoSetupBtn.setFont(font)
         self.customSetupBtn.setFont(font)
 
-        # Установка минимальных размеров кнопок
-        self.autoSetupBtn.setMinimumHeight(80)
-        self.customSetupBtn.setMinimumHeight(80)
+        # Установка размеров кнопок
+        self.autoSetupBtn.setMinimumHeight(50)
+        self.customSetupBtn.setMinimumHeight(50)
 
         # Подключение сигналов
         self.autoSetupBtn.clicked.connect(self.autoSetup)
@@ -96,28 +111,24 @@ class MainWindow(QMainWindow):
         # Добавление кнопок в основной layout
         main_layout.addLayout(buttons_layout)
 
-        # Добавление растягивающегося пространства посередине
-        main_layout.addStretch(1)
-
         # Создание нижней панели
         bottom_layout = QVBoxLayout()
 
         # Кнопка выхода
         self.exitBtn = QPushButton('Выход')
-        self.exitBtn.setMinimumHeight(50)
+        self.exitBtn.setMinimumHeight(40)
         self.exitBtn.setFont(font)
         self.exitBtn.clicked.connect(self.close)
 
         # Текст версии
         version_label = QLabel(f'Версия {config.get("version", "0.1")}')
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        version_label.setStyleSheet("color: white; font-size: 14px; margin-top: 10px;")
+        version_label.setStyleSheet("color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 10px;")
 
         bottom_layout.addWidget(self.exitBtn)
         bottom_layout.addWidget(version_label)
 
         main_layout.addLayout(bottom_layout)
-
         central_widget.setLayout(main_layout)
 
     def loadStyles(self):
@@ -137,25 +148,22 @@ class MainWindow(QMainWindow):
     def applyDefaultStyles(self):
         """Стандартные стили если файл не найден"""
         self.setStyleSheet("""
-            QMainWindow {
-                background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                           stop: 0 #1e1e2e, stop: 1 #2d2b42);
+            QMainWindow, QWidget {
+                background-color: #23003D;
             }
             QPushButton {
-                background-color: #5d4e7b;
+                background-color: rgba(255, 255, 255, 0.1);
                 color: white;
                 border: none;
                 border-radius: 15px;
-                padding: 20px;
-                font-size: 18px;
-                font-weight: bold;
+                padding: 10px;
+                font-size: 12px;
             }
             QPushButton:hover {
-                background-color: #6d5d8a;
-                border: 2px solid #ffffff;
+                background-color: rgba(255, 255, 255, 0.2);
             }
             QPushButton:pressed {
-                background-color: #4a3e62;
+                background-color: rgba(255, 255, 255, 0.15);
             }
         """)
 
@@ -199,16 +207,16 @@ class CustomFixScreen(QWidget):
         # Основной layout
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(20)
+        main_layout.setSpacing(15)
 
         # Заголовок
         title_label = QLabel("Выбор исправлений")
         title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_font = QFont()
-        title_font.setPointSize(24)
+        title_font.setPointSize(18)
         title_font.setBold(True)
         title_label.setFont(title_font)
-        title_label.setStyleSheet("color: white; margin: 20px;")
+        title_label.setStyleSheet("color: white; margin: 10px;")
 
         main_layout.addWidget(title_label)
 
@@ -234,10 +242,9 @@ class CustomFixScreen(QWidget):
 
         # Кнопка назад
         self.back_button = QPushButton("Назад")
-        self.back_button.setMinimumHeight(50)
+        self.back_button.setMinimumHeight(40)
         back_font = QFont()
-        back_font.setPointSize(14)
-        back_font.setBold(True)
+        back_font.setPointSize(12)
         self.back_button.setFont(back_font)
 
         bottom_layout.addWidget(self.back_button)
