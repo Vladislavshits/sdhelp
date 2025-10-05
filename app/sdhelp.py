@@ -13,7 +13,7 @@ sys.path.insert(0, current_dir)
 
 # Настройка логирования
 def setup_logging():
-    log_dir = os.path.join(os.path.dirname(current_dir), 'logs')
+    log_dir = os.path.join(current_dir, 'logs')
     os.makedirs(log_dir, exist_ok=True)
 
     log_file = os.path.join(log_dir, f'sdhelp_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         self.exitBtn.clicked.connect(self.close)
 
         # Текст версии
-        version_label = QLabel(f'Версия {config.get("version", "0.1")}')
+        version_label = QLabel(f'Версия {config.data.get("version", "0.1.0")}')
         version_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         version_label.setStyleSheet("color: rgba(255,255,255,0.7); font-size: 12px; margin-top: 10px;")
 
@@ -135,12 +135,16 @@ class MainWindow(QMainWindow):
         """Загрузка стилей из файла"""
         try:
             style_path = os.path.join(current_dir, "styles.qss")
-            style_file = QFile(style_path)
-            if style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
-                stream = QTextStream(style_file)
-                self.setStyleSheet(stream.readAll())
-                style_file.close()
-                logger.info("Стили успешно загружены")
+            if os.path.exists(style_path):
+                style_file = QFile(style_path)
+                if style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+                    stream = QTextStream(style_file)
+                    self.setStyleSheet(stream.readAll())
+                    style_file.close()
+                    logger.info("Стили успешно загружены")
+            else:
+                logger.warning("Файл стилей не найден, применяются стандартные стили")
+                self.applyDefaultStyles()
         except Exception as e:
             logger.error(f"Ошибка загрузки стилей: {e}")
             self.applyDefaultStyles()
@@ -158,12 +162,17 @@ class MainWindow(QMainWindow):
                 border-radius: 15px;
                 padding: 10px;
                 font-size: 12px;
+                font-weight: bold;
             }
             QPushButton:hover {
                 background-color: rgba(255, 255, 255, 0.2);
             }
             QPushButton:pressed {
                 background-color: rgba(255, 255, 255, 0.15);
+            }
+            QLabel {
+                color: white;
+                background: transparent;
             }
         """)
 
@@ -238,18 +247,23 @@ class CustomFixScreen(QWidget):
         main_layout.addWidget(self.tabs)
 
         # Панель с кнопкой назад
-        bottom_layout = QHBoxLayout()
+        bottom_layout = QVBoxLayout()
 
         # Кнопка назад
         self.back_button = QPushButton("Назад")
         self.back_button.setMinimumHeight(40)
+        self.back_button.setMinimumWidth(200)  # ← ДОБАВЬТЕ ЭТУ СТРОКУ
         back_font = QFont()
         back_font.setPointSize(12)
         self.back_button.setFont(back_font)
 
-        bottom_layout.addWidget(self.back_button)
-        bottom_layout.addStretch(1)
+        # Центрируем кнопку
+        button_container = QHBoxLayout()
+        button_container.addStretch(1)
+        button_container.addWidget(self.back_button)
+        button_container.addStretch(1)
 
+        bottom_layout.addLayout(button_container)
         main_layout.addLayout(bottom_layout)
 
         self.setLayout(main_layout)
@@ -257,12 +271,13 @@ class CustomFixScreen(QWidget):
     def loadStyles(self):
         """Загрузка стилей из файла"""
         try:
-            style_path = os.path.join(os.path.dirname(__file__), "styles.qss")
-            style_file = QFile(style_path)
-            if style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
-                stream = QTextStream(style_file)
-                self.setStyleSheet(stream.readAll())
-                style_file.close()
+            style_path = os.path.join(current_dir, "styles.qss")
+            if os.path.exists(style_path):
+                style_file = QFile(style_path)
+                if style_file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text):
+                    stream = QTextStream(style_file)
+                    self.setStyleSheet(stream.readAll())
+                    style_file.close()
         except Exception as e:
             logger.error(f"Ошибка загрузки стилей: {e}")
 
@@ -273,6 +288,10 @@ def main():
 
     # Установка стиля приложения
     app.setStyle('Fusion')
+
+    # Предзагрузка функций
+    from core.function_loader import function_loader
+    logger.info(f"Загружено функций: {len(function_loader.functions)}")
 
     window = MainWindow()
     window.show()
