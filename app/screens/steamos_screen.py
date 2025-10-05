@@ -1,23 +1,9 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from core.base_screen import BaseScreen
 
-
-class SteamOSScreen(QWidget):
+class SteamOSScreen(BaseScreen):
     def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        layout = QVBoxLayout()
-
-        title = QLabel("Настройки SteamOS")
-        title.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        title_font = QFont()
-        title_font.setPointSize(20)
-        title_font.setBold(True)
-        title.setFont(title_font)
-        title.setStyleSheet("color: white;")
-
-        layout.addWidget(title)
-        self.setLayout(layout)
+        super().__init__(
+            title="Настройки SteamOS",
+            description="Оптимизация и настройка SteamOS",
+            category="steamos"
+        )
