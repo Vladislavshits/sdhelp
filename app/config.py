@@ -10,7 +10,7 @@ class Config:
     def load_config(self) -> Dict[str, Any]:
         """Загрузка конфигурации"""
         default_config = {
-            "version": "1.0.0",
+            "version": "0.1.0",
             "functions": {},
             "games": {},
             "programs": {}
