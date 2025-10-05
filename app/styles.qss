@@ -1,45 +1,36 @@
-/* Основные стили для SD Help */
+/* Основные стили */
 
-QMainWindow {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #1e1e2e, stop: 1 #2d2b42);
-}
-
-QWidget {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-                                stop: 0 #1e1e2e, stop: 1 #2d2b42);
+QMainWindow, QWidget {
+    background-color: #23003D;
 }
 
 QPushButton {
-    background-color: #5d4e7b;
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
     border: none;
-    border-radius: 8px; /* Уменьшили с 15px */
-    padding: 10px; /* Уменьшили с 20px */
-    font-size: 14px; /* Уменьшили с 18px */
+    border-radius: 15px;
+    padding: 10px;
+    font-size: 12px;
     font-weight: bold;
-    min-height: 40px; /* Уменьшили с 80px */
 }
 
 QPushButton:hover {
-    background-color: #6d5d8a;
-    border: 2px solid #ffffff;
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 QPushButton:pressed {
-    background-color: #4a3e62;
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
-QPushButton:focus {
-    outline: none;
-    border: 2px solid #ffffff; /* Уменьшили с 3px */
+QLabel {
+    background: transparent;
+    color: white;
 }
 
 /* Стили для вкладок */
 QTabWidget::pane {
-    border: 2px solid #5d4e7b;
-    border-radius: 8px; /* Уменьшили с 10px */
-    background-color: rgba(93, 78, 123, 0.3);
+    border: none;
+    background: transparent;
 }
 
 QTabWidget::tab-bar {
@@ -47,82 +38,55 @@ QTabWidget::tab-bar {
 }
 
 QTabBar::tab {
-    background-color: #5d4e7b;
+    background-color: rgba(255, 255, 255, 0.1);
     color: white;
-    padding: 8px 16px; /* Уменьшили с 12px 20px */
-    margin: 4px; /* Уменьшили с 5px */
+    padding: 8px 16px;
+    margin: 2px;
     border: none;
-    border-radius: 6px; /* Уменьшили с 8px */
-    font-size: 12px; /* Уменьшили с 14px */
+    border-radius: 10px;
+    font-size: 11px;
     font-weight: bold;
 }
 
 QTabBar::tab:selected {
-    background-color: #8a7bac;
-    color: white;
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 QTabBar::tab:hover {
-    background-color: #6d5d8a;
-}
-
-/* Стили для чекбоксов */
-QCheckBox {
-    color: white;
-    font-size: 12px; /* Уменьшили с 14px */
-    margin: 6px; /* Уменьшили с 8px */
-    padding: 4px; /* Уменьшили с 5px */
-    background-color: rgba(255, 255, 255, 0.05);
-    border-radius: 4px; /* Уменьшили с 5px */
-}
-
-QCheckBox::indicator {
-    width: 16px; /* Уменьшили с 20px */
-    height: 16px; /* Уменьшили с 20px */
-}
-
-QCheckBox::indicator:unchecked {
-    background-color: #5d4e7b;
-    border: 1px solid #7d6e9b; /* Уменьшили с 2px */
-    border-radius: 3px; /* Уменьшили с 4px */
-}
-
-QCheckBox::indicator:checked {
-    background-color: #8a7bac;
-    border: 1px solid #9d8ebf; /* Уменьшили с 2px */
-    border-radius: 3px; /* Уменьшили с 4px */
-}
-
-QCheckBox:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Стили для области прокрутки */
 QScrollArea {
     border: none;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 8px; /* Уменьшили с 10px */
+    background: transparent;
 }
 
 QScrollBar:vertical {
     border: none;
-    background-color: #5d4e7b;
-    width: 10px; /* Уменьшили с 12px */
+    background-color: rgba(255, 255, 255, 0.1);
+    width: 8px;
     margin: 0px;
-    border-radius: 5px; /* Уменьшили с 6px */
+    border-radius: 4px;
 }
 
 QScrollBar::handle:vertical {
-    background-color: #8a7bac;
-    border-radius: 5px; /* Уменьшили с 6px */
-    min-height: 16px; /* Уменьшили с 20px */
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    min-height: 20px;
 }
 
 QScrollBar::handle:vertical:hover {
-    background-color: #9d8ebf;
+    background-color: rgba(255, 255, 255, 0.4);
 }
 
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-    border: none;
-    background: none;
+/* Стили для виджетов исправлений */
+FixWidget {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 15px;
+}
+
+FixWidget:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }
