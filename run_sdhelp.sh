@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Скрипт запуска sdhelp с логированием
-cd "$HOME"/sdhelp
+cd "$HOME"/.local/share/sdhelp
 
 # Проверка существования директории
 if [ ! -d "venv" ]; then
