@@ -3,11 +3,16 @@
 # Установщик для sdhelp - утилиты настройки Steam Deck
 set -e
 
+# Убираем спам Gtk
+zen_ns () {
+    zenity 2> >(grep -v 'Gtk')>&2 "$@"
+}
+
 # Функция для показа диалогов zenity
 show_dialog() {
-    zenity --question \
+    zen_ns --question \
         --title="Установка SD Help" \
-        --text="Добро пожаловать в установщик SD Help!\n\nЭта утилита поможет настроить ваш Steam Deck.\n\nПродолжить установку?" \
+        --text="$1" \
         --width=400 \
         --ok-label="Установить" \
         --cancel-label="Отмена"
@@ -15,7 +20,7 @@ show_dialog() {
 
 # Функция для показа прогресса
 show_progress() {
-    zenity --progress \
+    zen_ns --progress \
         --title="Установка SD Help" \
         --text="$1" \
         --percentage=0 \
@@ -25,7 +30,7 @@ show_progress() {
 
 # Функция для показа информации
 show_info() {
-    zenity --info \
+    zen_ns --info \
         --title="Установка SD Help" \
         --text="$1" \
         --width=400
@@ -33,26 +38,28 @@ show_info() {
 
 # Функция для показа ошибки
 show_error() {
-    zenity --error \
+    zen_ns --error \
         --title="Ошибка установки" \
         --text="$1" \
         --width=400
 }
 
+# Предупреждение, если запуск не на SteamOS
+if ! command -v steamos-readonly; then
+    if ! show_dialog "Похоже скрипт запускается не на SteamOS!\nУверены, что хотите продолжить?"; then
+        echo "Установка отменена пользователем."
+        exit 0
+    fi
+fi
+
 # Показать начальный диалог
-if ! show_dialog; then
+if ! show_dialog "Добро пожаловать в установщик SD Help!\n\nЭта утилита поможет настроить ваш Steam Deck.\n\nПродолжить установку?"; then
     echo "Установка отменена пользователем."
     exit 0
 fi
 
-# Переход в домашнюю директорию
-cd "$HOME"
-
-# Проверка наличия Python
-if ! command -v python3 &> /dev/null; then
-    show_error "Python3 не найден. Установите Python3 перед продолжением."
-    exit 1
-fi
+# Переход в ~/.local/share
+cd "$HOME/.local/share"
 
 # Основной процесс установки в одном прогресс-баре
 (
@@ -90,8 +97,12 @@ fi
 #!/bin/bash
 set -e
 
+zen_ns () {
+    zenity 2> >(grep -v 'Gtk')>&2 "$@"
+}
+
 show_dialog() {
-    zenity --question \
+    zen_ns --question \
         --title="Удаление SD Help" \
         --text="Вы уверены, что хотите удалить SD Help?\n\nВсе данные и настройки будут удалены." \
         --width=400 \
@@ -100,7 +111,7 @@ show_dialog() {
 }
 
 show_progress() {
-    zenity --progress \
+    zen_ns --progress \
         --title="Удаление SD Help" \
         --text="$1" \
         --percentage=0 \
@@ -109,7 +120,7 @@ show_progress() {
 }
 
 show_info() {
-    zenity --info \
+    zen_ns --info \
         --title="Удаление SD Help" \
         --text="$1" \
         --width=400
@@ -128,7 +139,7 @@ fi
 (
     echo "25"
     echo "# Удаление файлов программы..."
-    rm -rf "$HOME"/sdhelp
+    rm -rf "$HOME"/.local/share/sdhelp
     echo "50"
     echo "# Удаление ярлыков..."
     rm -f "$HOME"/Desktop/SDHelp.desktop
@@ -150,8 +161,8 @@ Version=1.0
 Type=Application
 Name=SDHelp
 Comment=Steam Deck Help Utility
-Exec="$HOME"/sdhelp/run_sdhelp.sh
-Icon="$HOME"/sdhelp/icon.png
+Exec="$HOME"/.local/share/sdhelp/run_sdhelp.sh
+Icon="$HOME"/.local/share/sdhelp/icon.png
 Terminal=false
 StartupNotify=true
 Categories=Utility;
@@ -163,7 +174,7 @@ Version=1.0
 Type=Application
 Name=SDHelp Uninstall
 Comment=Uninstall SD Help Utility
-Exec="$HOME"/sdhelp/uninstall.sh
+Exec="$HOME"/.local/share/sdhelp/uninstall.sh
 Icon=user-trash
 Terminal=false
 StartupNotify=true
@@ -182,7 +193,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Даем права на выполнение
-cd "$HOME"/sdhelp
+cd "$HOME"/.local/share/sdhelp
 chmod +x run_sdhelp.sh uninstall.sh
 chmod +x "$HOME"/Desktop/SDHelp.desktop
 chmod +x "$HOME"/Desktop/SDHelpUninstall.desktop
@@ -193,14 +204,8 @@ if [ ! -f "uninstall.sh" ] || [ ! -f "$HOME/Desktop/SDHelp.desktop" ] || [ ! -f 
     exit 1
 fi
 
-# --- ИСПРАВЛЕННЫЙ ФИНАЛЬНЫЙ БЛОК (Автономный и надежный) ---
-
-# 1. ФИНАЛЬНОЕ СООБЩЕНИЕ (Блокирующий Zenity --info гарантирует показ)
 # Этот диалог ждет нажатия OK
-show_info "Установка SD Help успешно завершена!\n\n• Ярлык 'SDHelp' создан на рабочем столе\n• Ярлык 'SDHelp Uninstall' для удаления\n• Утилита удаления: /home/deck/sdhelp/uninstall.sh\n\nНажмите OK для запуска программы сейчас."
+show_info "Установка SD Help успешно завершена!\n\n• Ярлык 'SDHelp' создан на рабочем столе\n• Ярлык 'SDHelp Uninstall' для удаления\n• Утилита удаления: $HOME/.local/share/sdhelp/uninstall.sh\n\nНажмите OK для запуска программы сейчас."
 
-# 2. Запуск программы в фоновом режиме (делает установщик автономным)
 echo "Запуск программы..."
-"$HOME"/sdhelp/run_sdhelp.sh &
-
-# 3. Установщик завершается сразу после запуска фонового процесса.
+"$HOME"/.local/share/sdhelp/run_sdhelp.sh & # Установщик завершается сразу после запуска фонового процесса.
