@@ -9,7 +9,7 @@ class FlatpakProgrammsInstall(BaseFunction):
 
     @property
     def description(self):
-        return "Скрипт для установки популярных программ для Steam Deck"
+        return "Скрипт для установки популярных программ для Steam Deck. Пропускает установку кодека Openh264!"
 
     def apply(self):
         """Установка программ из Flatpak"""
