@@ -19,6 +19,9 @@ if [ ! -d "venv" ]; then
     if zen_q; then
         echo "Запуск установщика и выход"
         exec "$HOME/.local/share/sdhelp/install.sh"
+
+        echo "Не удалось запустить установщик!" >&2
+        exit 1
     else
         echo "Отсутствует окружение venv!\nПользователь отказался от переустановки."
         exit 1
