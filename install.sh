@@ -5,7 +5,7 @@ set -e
 
 # Убираем спам Gtk
 zen_ns () {
-    zenity 2> >(grep -v 'Gtk')>&2 "$@"
+    zenity 2> >(grep -v 'Gtk') >&2 "$@"
 }
 
 # Функция для показа диалогов zenity
