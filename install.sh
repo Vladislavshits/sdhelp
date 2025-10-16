@@ -45,7 +45,8 @@ show_error() {
 }
 
 # Предупреждение, если запуск не на SteamOS
-if ! command -v steamos-readonly; then
+if ! command -v steamos-readonly &>/dev/null
+then
     if ! show_dialog "Похоже скрипт запускается не на SteamOS!\nУверены, что хотите продолжить?"; then
         echo "Установка отменена пользователем."
         exit 0
