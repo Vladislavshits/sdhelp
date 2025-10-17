@@ -21,19 +21,23 @@ edit_error () {
 steamos-readonly disable || true
 
 # Проверка и редактирования конфига локалей
-if [[ ! -z $(grep "#ru_RU.UTF-8 UTF-8" /etc/locale.gen) ]]; then
+if grep -q "#ru_RU.UTF-8 UTF-8" /etc/locale.gen
+then
   sed -i "s/#ru_RU.UTF-8 UTF-8/ru_RU.UTF-8 UTF-8/g" /etc/locale.gen &>/dev/null
 fi
 
-if [[ ! -z $(grep "#en_US.UTF-8 UTF-8" /etc/locale.gen) ]]; then
+if grep -q "#en_US.UTF-8 UTF-8" /etc/locale.gen
+then
   sed -i "s/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g" /etc/locale.gen &>/dev/null
 fi
 
 # Проверка конфига
-if [[ -z $(grep "^ru_RU.UTF-8 UTF-8" /etc/locale.gen) ]]; then
+if ! grep -q "^ru_RU.UTF-8 UTF-8" /etc/locale.gen
+then
   edit_error
   else
-  if [[ -z $(grep "^en_US.UTF-8 UTF-8" /etc/locale.gen) ]]; then
+  if ! grep -q "^en_US.UTF-8 UTF-8" /etc/locale.gen
+  then
     edit_error
   fi
 fi
