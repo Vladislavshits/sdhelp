@@ -1,0 +1,78 @@
+#!/bin/bash
+# Путь на этот скрипт в sdhelp
+# "$HOME/.local/share/sdhelp/app/core/ZenityFunctions"
+
+# Убираем спам по поводу GTK
+zen_ns () {
+    zenity 2> >(grep -v 'Gtk') >&2 "$@"
+}
+
+# Окно ошибки zenity
+# zen_err <Заголовок> <Текст>
+zen_err () {
+    local title
+    local text
+
+    if [ -z "$2" ]
+    then
+        title="Ошибка!"
+        text="$1"
+    fi
+    zen_ns --error \
+        --title="$title" \
+        --text="$text"
+}
+
+# Окно вопроса zenity
+# zen_q Заголовок | Вопрос | Да | Нет
+zen_q () {
+
+    local ok_label
+    local cancel_label
+
+    # Подствановка названия кнопок, если есть аргументы
+    if [ -z "$3" ]
+    then ok_label="Да"; else ok_label="$3"; fi
+    if [ -z "$4" ]
+    then cancel_label="Нет"; else cancel_label="$4"; fi
+
+    zen_ns --question \
+        --title="$1" \
+        --text="$2" \
+        --ok-label="$ok_label" \
+        --cancel-label="$cancel_label"
+}
+
+# Форматирование вывода для окна прогресса zenity
+format_output () {
+    while IFS= read -r line; do
+        echo "# $line"
+    done
+}
+
+# Окно прогресса zenity со всем выводом
+# zen_progress <функция/команда без аргументов для выполнения> <заголовок> <ширина> <высота>
+zen_progress () {
+    ("$1" 2>/dev/null | format_output) | zenity --progress \
+    --width="$3" \
+    --height="$4" \
+    --pulsate \
+    --auto-kill \
+    --auto-close \
+    --title="$2" \
+    --text="..."
+}
+
+zen_info () {
+    zen_ns --info \
+        --title="$1" \
+        --text="$2"
+}
+
+# Окно ввода пароля
+zen_pass () {
+    zen_ns --password \
+        --title="$1"
+}
+
+

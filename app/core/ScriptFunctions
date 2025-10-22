@@ -1,0 +1,156 @@
+#!/bin/bash
+# Путь на этот скрипт в sdhelp
+# "$HOME/.local/share/sdhelp/app/core/ScriptFunctions"
+
+# Игнорирование для записи пароля в .bash_history из команд sudo -S
+HISTIGNORE='*sudo -S*'
+PASSWORD=
+
+# Вынесение команды в функцию для вызова zen_progress
+flatpak_install_c () {
+    flatpak install flathub --system --or-update --assumeyes "$full_id"
+}
+
+
+# Запрос нового пароля с подтверждением
+set_pass_entry () {
+
+        if ! NEW_PASS=$(zen_pass "Установка нового пароля" "Введите новый пароль")
+        then exit 0; fi
+        if ! NEW_PASS_REPEAT=$(zen_pass "Установка нового пароля" "Подтвердите пароль")
+        then exit 0; fi
+
+}
+
+new_pass_set () {
+
+    local NEW_PASS
+    local NEW_PASS_REPEAT
+
+    while true
+    do
+
+        set_pass_entry || exit 0
+
+        if [[ -z "$NEW_PASS" ]]
+        then
+            zen_err "Пустой пароль!"
+            continue
+        fi
+
+        if [[ "$NEW_PASS" = "$NEW_PASS_REPEAT" ]]
+        then
+            # Установка подтверждённого пароля
+            yes "$NEW_PASS" | passwd "$(whoami)"
+            zen_ns --info --title="Установка нового пароля sudo" --text="Пароль успешно установлен!"
+            break
+        else
+            zen_err "Пароли не совпадают!"
+        fi
+    done
+}
+
+no_pass () {
+
+    if ! zen_q "Установка нового пароля" "Пароль для sudo не установлен!\nУстановить новый пароль?"
+    then return 0; fi
+
+    new_pass_set
+
+}
+
+existing_pass_entry () {
+
+        local PASS_CHECK
+
+        while true
+        do
+
+            if PASS_CHECK=$(zen_pass "Необходим пароль sudo")
+            then exit 0
+            else
+                zen_err "Пустой пароль!"
+                continue
+            fi
+
+            if ! echo $PASS_CHECK | sudo -S -k true
+            then zen_err "Необходим пароль sudo" "Пароль не подходит!"
+            else
+                PASSWORD="$PASS_CHECK"
+                break
+            fi
+
+        done
+}
+
+change_pass () {
+
+    if ! zen_q "Смена пароля sudo" "Пароль уже установлен.\nСменить его?"
+    then return 0; fi
+
+
+    echo $(existing_pass_entry) | sudo -S -k passwd -d "$USER"
+
+    new_pass_set
+}
+
+# Проверка на наличие пароля пользователя
+pass_status () {
+
+    local PASS_STATUS
+
+    PASS_STATUS=$(passwd -S "$USER" 2> /dev/null)
+
+    if [ "${PASS_STATUS:5:2}" = "NP" ]
+    then no_pass;
+    else
+        case "$1" in
+            "check")  return 0
+            ;;
+            "change") change_pass
+            ;;
+            *) change_pass
+            ;;
+        esac
+
+    fi
+
+}
+
+pass_for_sudo () {
+    pass_status check
+    if ! PASSWORD=$(existing_pass_entry)
+    then return 1; fi
+}
+
+on_exit () {
+    PASSWORD=""
+}
+
+# Функция срабатывающая при ошибках
+err_trap () {
+    if [[ -z "$1" ]]
+    then ERR_TEXT="Непредвиденная ошибка!"
+    else ERR_TEXT="$1"; fi
+
+    on_exit
+
+    echo "Ошибка: $ERR_TEXT"
+    zen_err "$ERR_TEXT"
+
+    exit 1
+}
+trap 'on_exit' EXIT
+
+sudo_p () {
+    if [ -z "$PASSWORD" ]
+    then
+        if ! PASSWORD=$(pass_for_sudo)
+        then
+            err_trap "Для выполнения команды необходим пароль sudo!"
+            exit 0
+        fi
+    fi
+
+    echo $PASSWORD | sudo -S -k "$@"
+}

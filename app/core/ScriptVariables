@@ -1,0 +1,13 @@
+#!/bin/bash
+# Путь на этот скрипт в sdhelp
+# "$HOME/.local/share/sdhelp/app/core/ScriptFunctions"
+
+# Переменные необходимые для скриптов
+SDHELP_DIR="$HOME/.local/share/sdhelp"
+SDHELP_CORE="$SDHELP_DIR/app/core"
+STEAM_DIR="$HOME/.local/share/Steam"
+STEAM_APPS="$STEAM_DIR/steamapps"
+STEAM_COMP="$STEAM_APPS/compatdata"
+PP_DIR="$HOME/PortProton"
+PP_PFXS="$PP_DIR/prefixes"
+PP_DEFAULT_PREFIX="$PP_PFXS/DEFAULT"
