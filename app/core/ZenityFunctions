@@ -53,9 +53,7 @@ format_output () {
 # Окно прогресса zenity со всем выводом
 # zen_progress <функция/команда без аргументов для выполнения> <заголовок> <ширина> <высота>
 zen_progress () {
-    ("$1" 2>/dev/null | format_output) | zenity --progress \
-    --width="$3" \
-    --height="$4" \
+    ($1 | format_output) | zenity --progress \
     --pulsate \
     --auto-kill \
     --auto-close \

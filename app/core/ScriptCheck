@@ -3,9 +3,12 @@
 
 # Проверка в зависимости от входящего аргумента
 case "$1" in
-    "ZapretInstall") [ -d "$HOME/zapret" ] && exit 0 || exit 1 ;;
-    "OpenhFlatpakInstall") [ -d "$HOME/.local/share/flatpak/extension/org.freedesktop.Platform.openh264/" ] && exit 0 || exit 1 ;;
+    "ZapretInstall") [ -d "$HOME/zapret" ] || exit 1 ;;
+    "OpenhFlatpakInstall") [ -d "$HOME/.local/share/flatpak/extension/org.freedesktop.Platform.openh264" ] || exit 1 ;;
     "flatpak_auto_install") exit 1 ;; # Многоразовый скрипт
-    "SdweakInstall") [ -f "$HOME/.local/tweak/SDWEAK.sh" ] && exit 0 || exit 1 ;;
-    "locale_gen") [ ! -z "$(grep '^ru_RU' /etc/locale.gen && grep '^en_US' /etc/locale.gen)" ] && exit 0 || exit 1 ;;
+    "SdweakInstall") [ -f "$HOME/.local/tweak/SDWEAK.sh" ] || exit 1 ;;
+    "locale_gen") [ ! -z "$(grep '^ru_RU' /etc/locale.gen && grep '^en_US' /etc/locale.gen)" ] || exit 1 ;;
+    "AnAnimeGamesLaunchers") flatpak remotes | grep "launcher.moe" &>/dev/null || exit 1 ;;
 esac
+
+exit 0

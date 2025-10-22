@@ -2,13 +2,15 @@
 # Путь на этот скрипт в sdhelp
 # "$HOME/.local/share/sdhelp/app/core/ScriptFunctions"
 
+source "$HOME/.local/share/sdhelp/app/core/ZenityFunctions"
+
 # Игнорирование записи пароля в .bash_history из команд sudo -S
 export HISTIGNORE='*sudo -S*'
 PASSWORD=
 
 # Вынесение команды в функцию для вызова zen_progress
 flatpak_install_c () {
-    flatpak install flathub --system --or-update --assumeyes "$full_id"
+    flatpak install flathub --or-update --assumeyes "$full_id"
 }
 
 

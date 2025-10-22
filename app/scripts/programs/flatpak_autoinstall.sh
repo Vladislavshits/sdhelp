@@ -59,5 +59,6 @@ for app in "${selected_list[@]}"; do
     full_id=$(flatpak search --system --columns=application "$app" | awk 'NR==1 {print $1}')
     zenity_progress_flatpak flatpak_install
 done
+
 xdg-user-dirs-update
 zen_info "Авто-установка" "Программы установлены!"
