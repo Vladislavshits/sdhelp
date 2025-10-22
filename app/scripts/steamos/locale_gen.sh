@@ -1,18 +1,17 @@
 #!/bin/bash
 
+source "$HOME/.local/share/sdhelp/app/core/ScriptFunctions"
+source "$HOME/.local/share/sdhelp/app/core/ZenityFunctions"
+
 # Запуск от прав root
 if [[ "$EUID" -ne 0 ]]; then
-zenity --entry \
-    --hide-text \
-    --title="Требуются права root" \
-    --text="Введите пароль sudo" | sudo --stdin "$0"
-    exit 0
+  sudo_p "$0" "$@"
+  exit 0
 fi
 
 edit_error () {
-  zenity --error \
-  --title="Редактирование /etc/locale.gen" \
-  --text="Не удалось отредактировать конфиг\nИзменения не были внесены"
+  zen_err "Редактирование /etc/locale.gen" \
+  "Не удалось отредактировать конфиг\nИзменения не были внесены"
   steamos-readonly enable
   exit 1
 }
@@ -48,9 +47,7 @@ locale-gen
 # Возвращение запрета на запись в систему
 steamos-readonly enable
 
-zenity --info \
-  --title="Генерация локалей выполнена" \
-  --text="Сгенерированы локали en_US и ru_RU\nДля применения изменений требуется перезагрузить устройство" \
-  --width=600
+zen_info "Генерация локалей выполнена" \
+  "Сгенерированы локали en_US и ru_RU\nДля применения изменений требуется перезагрузить устройство"
 
 exit 0

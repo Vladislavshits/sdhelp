@@ -2,8 +2,8 @@
 # Путь на этот скрипт в sdhelp
 # "$HOME/.local/share/sdhelp/app/core/ScriptFunctions"
 
-# Игнорирование для записи пароля в .bash_history из команд sudo -S
-HISTIGNORE='*sudo -S*'
+# Игнорирование записи пароля в .bash_history из команд sudo -S
+export HISTIGNORE='*sudo -S*'
 PASSWORD=
 
 # Вынесение команды в функцию для вызова zen_progress
@@ -102,7 +102,14 @@ pass_status () {
     PASS_STATUS=$(passwd -S "$USER" 2> /dev/null)
 
     if [ "${PASS_STATUS:5:2}" = "NP" ]
-    then no_pass;
+    then
+        if [ "$1" = "check" ]
+        then
+            if zen_q "Необходим пароль sudo" "Пароль не установлен!\nЗадать его сейчас?"
+            then no_pass
+            else return 1; fi
+        fi
+        no_pass
     else
         case "$1" in
             "check")  return 0
@@ -114,7 +121,6 @@ pass_status () {
         esac
 
     fi
-
 }
 
 pass_for_sudo () {
@@ -124,7 +130,8 @@ pass_for_sudo () {
 }
 
 on_exit () {
-    PASSWORD=""
+    unset PASSWORD
+    unset HISTIGNORE
 }
 
 # Функция срабатывающая при ошибках
@@ -142,13 +149,15 @@ err_trap () {
 }
 trap 'on_exit' EXIT
 
+# Выполнение команды с sudo
 sudo_p () {
+    # Проверка на уже введённый пароль
     if [ -z "$PASSWORD" ]
     then
         if ! PASSWORD=$(pass_for_sudo)
         then
             err_trap "Для выполнения команды необходим пароль sudo!"
-            exit 0
+            exit 1
         fi
     fi
 

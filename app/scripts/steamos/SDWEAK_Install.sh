@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Установка SDWEAK
-# https://github.com/Taskerer/SDWEAK
+# Установка SDWEAK https://github.com/Taskerer/SDWEAK
 
 # Удаление старого скрипта, если таковой имеется
 rm -rf /tmp/desktop-install.sh || true
