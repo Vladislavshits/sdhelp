@@ -38,4 +38,4 @@ if zen_progress anime_launcher_install "Установка аниме лаунч
 then zen_info "Установка аниме лаунчера" "$launcher установлен!"
 else zen_err "Установка не удалась!"
 fi
-xdg-user-dirs-update
+kbuildsycoca6
